@@ -51,3 +51,100 @@ connect函数接受一个组件WrappedComponent作为参数，把这个组件包
 这个函数会接受store.getState()的结果作为参数，然后返回一个对象，这个对象是根据state生成的。mapStateToProps相当于告知了Connect应该如何去store里面取数据，然后可以把这个函数的返回结果传给被包装的组件：
 
 
+    const connect2 = (mapStateToProps) => (WrappedComponent) => {
+      class Connect extends Component {
+	    static contextTypes = {
+	      store: PropTypes.object
+ 	   }
+	    
+	    render () {
+		   const { store } = this.context 
+		      let stateProps = mapStateToProps(store.getState())
+		      //{...stateProps}意思是把这个对象里面的属性全部通过'props'方式传递进去
+		      return <WrappedComponent {...stateProps} />
+		    }
+	      }
+      return Connect
+    }
+
+connect现在是接受一个参数mapStateToProps，然后返回一个函数，这个返回的函数才是高阶组件。它会接受一个组件作为参数，然后用Connect组件包装以后再返回。
+
+connect的用法是：
+
+    const mapStateToProps = (state) => {
+    	return {
+    		themeColor: state.themeColor	
+    	}
+    }
+    
+    Header = connect(MapStateToProps)(Header)
+
+我们把上面connect的函数代码单独分离到一个模块当中去，在`src/`目录下新建一个`react-redux.js`，把上面的connect函数的代码复制进去然后就可以在src/Header.js里面使用了
+
+    import React, { Component, PropTypes } from 'react'
+    import { connect } from './react-redux'
+    
+    class Header extends Component {
+      static propTypes = {
+   		 themeColor: PropTypes.string
+      }
+    
+      render () {
+	    return (
+	      <h1 style={{ color: this.props.themeColor }}>React.js 小书</h1>
+	    )
+      }
+    }
+    
+    const mapStateToProps = (state) => {
+      return {
+    	themeColor: state.themeColor
+      }
+    }
+    Header = connect(mapStateToProps)(Header)
+    
+    export default Header
+
+connect还没有监听数据变化然后重新渲染，所以现在点击按钮只有按钮会变颜色。我们给connect的高阶组件增加监听数据变化重新渲染的逻辑，稍微重构一下connect：
+
+    export const connect = (mapStateToProps) => (WrappedComponent) => {
+      class Connect extends Component {
+	    static contextTypes = {
+	      store: PropTypes.object
+	    }
+	    constructor () {
+		    super()
+		    this.state = { allProps:{} }
+	    }
+	    
+	    componentWillMount () {
+		    const { store } = this.context
+		    this._updateProps()
+		    store.subscribe( ()=> this._updateProps() )
+	    }
+    
+	    _updateProps () {
+		    const { store } = this.context
+		    let stateProps = mapStateToProps(store.getState(), this.props )//额外传入props，让获取数据更加灵活方便
+		    this.setState({ 
+		    allProps:{ //整合普通的props和从state生成的props
+		    ...stateProps,
+		    ...this.props
+		    }
+	     })
+	    }
+    
+	    render () {
+	      return <WrappedComponent {...this.state.allProps} />
+	    }
+      }
+      return Connect
+    }
+
+我们在Connect组件的constructor里面初始化了state.allProps，它是一个对象，用来保存需要传给被包装组件的所有的参数。生命周期componentWillMount会调用_updateProps进行初始化，然后通过store.subscribe监听数据变化重新调用_updateProps()
+
+为了让connect返回新组件和被包装的组件使用参数保持一致，我们会把所有传给Connect的props原封不动的传给WrappedComponent。所以在 _updateProps 里面会把 stateProps 和 this.props 合并到 this.state.allProps 里面，再通过 render 方法把所有参数都传给 WrappedComponent。
+
+mapStateToProps 也发生点变化，它现在可以接受两个参数了，我们会把传给 Connect 组件的 props 参数也传给它，那么它生成的对象配置性就更强了，我们可以根据 store 里面的 state 和外界传入的 props 生成我们想传给被包装组件的参数。
+
+现在已经很不错了，Header.js 和 Content.js 的代码都大大减少了，并且这两个组件 connect 之前都是 Dumb 组件。接下来会继续重构 ThemeSwitch。
