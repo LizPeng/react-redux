@@ -32,10 +32,13 @@ const themeReducer = (state, action) => {
 const store = createStore(themeReducer)
 
 class Index extends Component {
+  //验证getChildContext返回的对象。是必须写的
   static childContextTypes = {
     store: PropTypes.object
   }
   
+  //这个方法是设置context的过程，它返回的对象就是context
+  //所有的子组件都可以访问到这个对象
   getChildContext () {
     return { store }
   }
@@ -48,7 +51,5 @@ class Index extends Component {
     )
   }
 }
-
-
 
 ReactDOM.render(<Index />, document.getElementById('root'));
