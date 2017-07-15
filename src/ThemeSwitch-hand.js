@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 //重构，摆脱store.dispatch
-import { connect } from 'react-redux'
+import { connect } from './react-redux'
 
 class ThemeSwitch extends Component {
   static propTypes = {

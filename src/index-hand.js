@@ -4,26 +4,21 @@ import Header from './Header'
 import Content from './Content'
 import './index.css';
 //v5头部引入provider
-//import { Provider } from './react-redux'
+import { Provider } from './react-redux'
 
-//v6使用真正的redux
-import { createStore } from 'redux'
-import { Provider } from 'react-redux'
-
-//加入createStore v6删除自己createStore
-// function createStore (reducer) {
-//   let state = null
-//   const listeners = []
-//   const subscribe = (listener)=>listeners.push(listener)
-//   const getState = () => state 
-//   const dispatch = (action) => {
-//     state = reducer(state,action)
-//     listeners.forEach((listener) => listener())
-//   }
-//   dispatch({})
-//   return { getState, dispatch, subscribe }
-// }
-
+//加入createStore
+function createStore (reducer) {
+  let state = null
+  const listeners = []
+  const subscribe = (listener)=>listeners.push(listener)
+  const getState = () => state 
+  const dispatch = (action) => {
+    state = reducer(state,action)
+    listeners.forEach((listener) => listener())
+  }
+  dispatch({})
+  return { getState, dispatch, subscribe }
+}
 //构建一个themeReducer来生成一个store
 const themeReducer = (state, action) => {
   if(!state) return {
