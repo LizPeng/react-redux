@@ -1,7 +1,7 @@
 import React ,{ Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import Header from './Header'
-import Content from './Content'
+import Header from './containers/Header' //v7使用真正的redux
+import Content from './containers/Content'//v7
 import './index.css';
 //v5头部引入provider
 //import { Provider } from './react-redux'
