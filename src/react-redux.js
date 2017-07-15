@@ -46,3 +46,28 @@ export const connect = (mapStateToProps, mapDispatchToProps) => (WrappedComponen
   }
   return Connect
 }
+
+/////v5 新增provider,用来重构Index.js
+//provider很简单，是一个容器组件，会把嵌套的内容作为自己的子组件渲染出来。它还会把外界传给它的props.store放到context，这样子组件connect的时候都可以获取到
+
+export class Provider extends Component {
+    static propTypes ={
+        store: PropTypes.object,
+        children: PropTypes.any
+    }
+    static childContextTypes = {
+        store : PropTypes.store
+    }
+
+    getChildContext () {
+        return {
+            store: this.props.store
+        }
+    }
+
+    render ()　{
+        return (
+            <div> {this.props.children} </div>
+        )
+    }
+}

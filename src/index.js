@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import Header from './Header'
 import Content from './Content'
 import './index.css';
+//v5头部引入provider
+import { Provider } from './react-redux'
 
 //加入createStore
 function createStore (reducer) {
@@ -32,16 +34,17 @@ const themeReducer = (state, action) => {
 const store = createStore(themeReducer)
 
 class Index extends Component {
+
+  //v5删除关于context的代码，以下注释部分
   //验证getChildContext返回的对象。是必须写的
-  static childContextTypes = {
-    store: PropTypes.object
-  }
-  
-  //这个方法是设置context的过程，它返回的对象就是context
-  //所有的子组件都可以访问到这个对象
-  getChildContext () {
-    return { store }
-  }
+  // static childContextTypes = {
+  //   store: PropTypes.object
+  // }
+  // 这个方法是设置context的过程，它返回的对象就是context
+  // 所有的子组件都可以访问到这个对象
+  // getChildContext () {
+  //   return { store }
+  // }
   render () {
     return (
       <div>
@@ -51,5 +54,8 @@ class Index extends Component {
     )
   }
 }
-
-ReactDOM.render(<Index />, document.getElementById('root'));
+//v5把Provider作为子组件树的根节点
+ReactDOM.render(
+<Provider store={store}>
+    <Index />
+</Provider>, document.getElementById('root'));

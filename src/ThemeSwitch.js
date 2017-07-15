@@ -36,12 +36,13 @@ class ThemeSwitch extends Component {
     )
   }
 }
+//传入的属性
 const mapStateToProps = (state) => {
   return {
     themeColor: state.themeColor
   }
 }
-
+//dispatch修改的属性
 const mapDispatchToProps = (dispatch) => {
   return {
     onSwitchColor:(color)=>{
